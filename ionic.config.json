@@ -1,5 +1,7 @@
 {
   "name": "ats-client-app",
-  "integrations": {},
+  "integrations": {
+    "cordova": {}
+  },
   "type": "angular"
 }
