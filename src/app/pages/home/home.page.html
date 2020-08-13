@@ -1,9 +1,28 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar [color]="color">
     <ion-title>AntiTheft System</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-
+<ion-content padding-top>
+  <ion-list lines="none">
+    <ion-item>
+      <ion-img [src]="'assets/icon/' + icon + '.png'"></ion-img>
+    </ion-item>
+    <ion-item>
+      <ion-label class="ion-text-center">
+        {{ state }}
+      </ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label class="ion-text-center">
+        {{ message }}
+      </ion-label>
+    </ion-item>
+  </ion-list>
 </ion-content>
+<ion-footer class="ion-no-border">
+  <ion-toolbar>
+    <ion-button [hidden]="actionAvailable" expand="block" [color]="color" size="large" (click)="execAction()">{{ action }}</ion-button>
+  </ion-toolbar>
+</ion-footer>
