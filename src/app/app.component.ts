@@ -27,17 +27,17 @@ export class AppComponent implements OnInit, OnDestroy {
     {
       title: 'Activity',
       url: 'activity',
-      icon: 'reader-outline'
+      icon: 'reader'
     },
     {
       title: 'Programming',
       url: 'programming',
-      icon: 'options-outline'
+      icon: 'keypad'
     },
     {
       title: 'Settings',
       url: 'settings',
-      icon: 'options-outline'
+      icon: 'options'
     }
   ];
   public labels = [];

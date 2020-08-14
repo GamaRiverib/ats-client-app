@@ -10,5 +10,6 @@ export const environment = {
     password: '',
     topic: '/ats',
     commands: 'commands'
-  }
+  },
+  channel: 'mqtt'
 };

@@ -12,11 +12,10 @@ import { AppRoutingModule } from './app-routing.module';
 import { HTTP } from '@ionic-native/http/ngx';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { MqttModule } from 'ngx-mqtt';
-// import { SocketIoModule } from 'ngx-socket-io';
+import { SocketIoModule } from 'ngx-socket-io';
 import { Toast } from '@ionic-native/toast/ngx';
 import { Vibration } from '@ionic-native/vibration/ngx';
-
-// const serverUrl = 'http://192.168.0.173:3000';
+import { environment } from 'src/environments/environment';
 
 @NgModule({
   declarations: [AppComponent],
@@ -24,7 +23,7 @@ import { Vibration } from '@ionic-native/vibration/ngx';
   imports: [
     BrowserModule,
     MqttModule.forRoot({ connectOnCreate: false }),
-    // SocketIoModule.forRoot({ url: serverUrl }),
+    SocketIoModule.forRoot({ url: environment.server_url, options: { autoConnect : false } }),
     IonicModule.forRoot(),
     AppRoutingModule
   ],

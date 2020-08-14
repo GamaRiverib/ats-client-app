@@ -1,0 +1,25 @@
+<ion-header>
+  <ion-toolbar [color]="color">
+    <ion-buttons slot="start">
+      <ion-button (click)="back()">
+        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Sensors</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-list>
+    <ion-item *ngFor="let s of sensors; let i = index">
+      <ion-icon 
+        [name]="'radio-button-' + (s.online ? 'on' : 'off')"
+        [color]="s.online ? 'success' : 'danger'">
+      </ion-icon>
+      <ion-label class="ion-padding-start">{{ s.name }}</ion-label>
+      <ion-icon
+        [name]="s.actived ? 'lock-open-outline' : 'lock-closed-outline'"
+        [color]="s.actived ? 'danger' : 'success'">
+      </ion-icon>
+    </ion-item>
+  </ion-list>
+</ion-content>

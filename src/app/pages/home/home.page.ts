@@ -1,18 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { ActionSheetController, AlertController, Platform } from '@ionic/angular';
+import { ActionSheetController, AlertController, ModalController, Platform } from '@ionic/angular';
 import { Toast } from '@ionic-native/toast/ngx';
 import { Vibration } from '@ionic-native/vibration/ngx';
 import { AtsService, AtsEvents, Sensor, SystemState, AtsStates, AtsModes } from 'src/app/services/ats.service';
-
-const KEYS_ICONS = [
-  'ready',
-  'disarmed',
-  'leaving',
-  'armed',
-  'entering',
-  'alarmed',
-  'programming'
-];
+import { SensorListComponent } from 'src/app/components/sensor.list/sensor.list.component';
+import { KEYS_ICONS } from 'src/app/app.values';
 
 @Component({
   selector: 'app-home',
@@ -32,7 +24,7 @@ export class HomePage implements OnInit {
 
   private systemState: number;
   private systemMode: number;
-  private activedSensors: number[];
+  private activedSensors: Sensor[] | number[];
   private state: string;
   private color: string;
   private icon: string;
@@ -43,6 +35,7 @@ export class HomePage implements OnInit {
     private ats: AtsService,
     private actionSheetController: ActionSheetController,
     private alertController: AlertController,
+    private modalController: ModalController,
     private platform: Platform,
     private toast: Toast,
     private vibration: Vibration) { }
@@ -171,7 +164,7 @@ export class HomePage implements OnInit {
       const systemMode: number = system.mode;
       const state: string = AtsStates[systemState];
       const mode: string = AtsModes[systemMode];
-      const activedSensors: Array<number> = system.activedSensors || [];
+      const activedSensors: Array<any> = system.activedSensors || [];
       const activedSensorsCount: number = system.activedSensors ? system.activedSensors.length : 0;
       const timeout: number | null = Math.ceil(data.leftTimeout || ((system.leftTime - system.uptime) / 1000));
 
@@ -315,7 +308,6 @@ export class HomePage implements OnInit {
   }
 
   execAction(): void {
-    console.log('execAction', this.systemState);
     switch (this.systemState) {
       case 0:
         this.armSystem();
@@ -384,8 +376,20 @@ export class HomePage implements OnInit {
     await actionSheet.present();
   }
 
-  showSensors(): void {
-    console.log('Show sensors');
+  async showSensors(): Promise<void> {
+    const actived = this.activedSensors;
+    const modal = await this.modalController.create({
+      component: SensorListComponent,
+      componentProps: { actived }
+    });
+    modal.onWillDismiss().then(async (res: any) => {
+      console.log(res);
+    }).catch((reason: any) => {
+      console.log('ERROR', reason);
+    }).finally(() => {
+      // TODO
+    });
+    return await modal.present();
   }
 
   async disarmSystem(): Promise<void> {

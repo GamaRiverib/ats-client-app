@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MQTTChannel } from './mqtt.channel.service';
 import { getTotp } from './otp.provider.service';
 import { environment } from 'src/environments/environment';
-// import { WebSocketChannel } from './ws.channel.service';
+import { WebSocketChannel } from './ws.channel.service';
 
 const CLIENT_SECRET = environment.client_secret;
 
@@ -152,14 +152,18 @@ export class AtsService {
   private listeners: any = {};
 
   constructor(
-      // private webSocketChannel: WebSocketChannel,
+      private webSocketChannel: WebSocketChannel,
       private mqttChannel: MQTTChannel) {
 
-    // this.startWebSocketChannel();
+    this.startWebSocketChannel();
 
     this.startMQTTChannel();
 
-    this.mqttChannel.connect();
+    if (environment.channel === 'ws') {
+      this.webSocketChannel.connect();
+    } else {
+      this.mqttChannel.connect();
+    }
 
     this.startServerTimeSync();
   }
@@ -169,32 +173,32 @@ export class AtsService {
   }
 
   get connected(): boolean {
-    return /*this.webSocketChannel.connected() ||*/ this.mqttChannel.connected();
+    return this.webSocketChannel.connected() || this.mqttChannel.connected();
   }
 
   get locallyConnected(): boolean {
-    return false; // this.webSocketChannel.connected();
+    return this.webSocketChannel.connected();
   }
 
   get remotelyConnected(): boolean {
     return this.mqttChannel.connected();
   }
 
-  /*private startWebSocketChannel(): void {
+  private startWebSocketChannel(): void {
     this.webSocketChannel.onConnected(this.onWebSocketChannelConnected.bind(this));
     this.webSocketChannel.onDisconnected(this.onWebSocketChannelDisconnected.bind(this));
     this.webSocketChannel.onReceiveTime(this.onReceiveTime.bind(this));
     this.webSocketChannel.onReceiveWho(this.onReceiveWho.bind(this));
-    this.webSocketChannel.onReceiveEvents((c: any) => this.onReceiveEvents.call(this, this.webSocketChannel, c));
+    this.webSocketChannel.onReceiveEvents((c: any) => this.onReceiveEventsFromWebSockets.call(this, this.webSocketChannel, c));
     this.webSocketChannel.onReceiveSensors(this.onReceiveSensors.bind(this));
-  }*/
+  }
 
   private startMQTTChannel(): void {
     this.mqttChannel.onConnected(this.onMQTTChannelConnected.bind(this));
     this.mqttChannel.onDisconnected(this.onMQTTChannelDisconnected.bind(this));
     this.mqttChannel.onReceiveTime(this.onReceiveTime.bind(this));
     this.mqttChannel.onReceiveWho(this.onReceiveWho.bind(this));
-    this.mqttChannel.onReceiveEvents((c: any) => this.onReceiveEvents.call(this, this.mqttChannel, c));
+    this.mqttChannel.onReceiveEvents((c: any) => this.onReceiveEventsFromMqtt.call(this, this.mqttChannel, c));
     this.mqttChannel.onReceiveSensors(this.onReceiveSensors.bind(this));
     (this.mqttChannel as MQTTChannel).onLWT(this.onLWT.bind(this));
   }
@@ -212,13 +216,13 @@ export class AtsService {
   }
 
   private getChannel(): Channel {
-    /*if (this.webSocketChannel.connected()) {
+    if (this.webSocketChannel.connected()) {
       console.log('using WebSockets');
       return this.webSocketChannel;
-    } else {*/
-      // console.log('using MQTT');
+    } else {
+      console.log('using MQTT');
       return this.mqttChannel;
-    // }
+    }
   }
 
   private onWebSocketChannelConnected(): void {
@@ -311,15 +315,22 @@ export class AtsService {
     this.publish(AtsEvents[event], payload);
   }
 
-  private onReceiveEvents(channel: Channel, config: any): void {
+  private onReceiveEventsFromWebSockets(channel: Channel, config: any): void {
     // tslint:disable-next-line: forin
     for (const event in config) {
-      /*let cb: (data: any) => void;
+      let cb: (data: any) => void;
       if (this.payloadEventsIncludes(event)) {
         cb = (data: any): void => this.handleEventWithPayloadCode.call(this, data, event);
       } else {
         cb = (data: any): void => this.publish(AtsEvents[event], data);
-      }*/
+      }
+      channel.subscribe(event, cb, config);
+    }
+  }
+
+  private onReceiveEventsFromMqtt(channel: Channel, config: any): void {
+    // tslint:disable-next-line: forin
+    for (const event in config) {
       channel.subscribe(event, d => this.publish(AtsEvents[event], d), config);
     }
   }
