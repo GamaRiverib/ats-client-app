@@ -151,6 +151,8 @@ export class AtsService {
 
   private listeners: any = {};
 
+  private lastSystemState: SystemState;
+
   constructor(
       private webSocketChannel: WebSocketChannel,
       private mqttChannel: MQTTChannel) {
@@ -166,6 +168,12 @@ export class AtsService {
     }
 
     this.startServerTimeSync();
+
+    this.subscribe(AtsEvents.SYSTEM_STATE_CHANGED, d => this.lastSystemState = d);
+  }
+
+  get systemState(): SystemState {
+    return this.lastSystemState;
   }
 
   get sensors(): Array<Sensor> {

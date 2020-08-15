@@ -1,9 +1,48 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar [color]="programming">
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()" [hidden]="!programming">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title>Programming</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <ion-tabs>
+    <ion-tab-bar slot="bottom">
+      <ion-tab-button tab="sensors" [disabled]="!programming">
+        <ion-icon name="hardware-chip-outline"></ion-icon>
+        <ion-label>Sensors</ion-label>
+      </ion-tab-button>
+  
+      <ion-tab-button tab="codes" [disabled]="!programming">
+        <ion-icon name="keypad-outline"></ion-icon>
+        <ion-label>Codes</ion-label>
+      </ion-tab-button>
+  
+      <ion-tab-button tab="times" [disabled]="!programming">
+        <ion-icon name="time-outline"></ion-icon>
+        <ion-label>Times</ion-label>
+      </ion-tab-button>
 
+      <ion-tab-button tab="sounds" [disabled]="!programming">
+        <ion-icon name="volume-medium-outline"></ion-icon>
+        <ion-label>Sounds</ion-label>
+      </ion-tab-button>
+
+      <ion-tab-button tab="phones" [disabled]="!programming">
+        <ion-icon name="call-outline"></ion-icon>
+        <ion-label>Phones</ion-label>
+      </ion-tab-button>
+
+      <ion-tab-button tab="emails" [disabled]="!programming">
+        <ion-icon name="mail-outline"></ion-icon>
+        <ion-label>Emails</ion-label>
+      </ion-tab-button>
+    </ion-tab-bar>
+  
+  </ion-tabs>
 </ion-content>
+

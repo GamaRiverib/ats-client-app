@@ -1,0 +1,32 @@
+<ion-list>
+  <ion-item>
+    <ion-label position="floating">Exit time (seconds)</ion-label>
+    <ion-input
+      enterkeyhint="done"
+      inputmode="number"
+      max="600"
+      min="5"
+      name="exit"
+      required="true"
+      type="number"
+      step="5"
+      [(ngModel)]="config.exitTime"
+    >
+    </ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-label position="floating">Entry time (seconds)</ion-label>
+    <ion-input
+      enterkeyhint="done"
+      inputmode="number"
+      max="300"
+      min="5"
+      name="entry"
+      required="true"
+      type="number"
+      step="5"
+      [(ngModel)]="config.entryTime"
+    >
+    </ion-input>
+  </ion-item>
+</ion-list>

@@ -1,0 +1,89 @@
+<ion-header>
+  <ion-toolbar [color]="programming">
+    <ion-buttons slot="start">
+      <ion-button (click)="back()">
+        <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ sensor.name }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-list>
+    <ion-item-group>
+      <ion-item-divider>
+        <ion-label>Identity</ion-label>
+      </ion-item-divider>
+      <ion-item>
+        <ion-label position="floating">Name</ion-label>
+        <ion-input
+          enterkeyhint="next"
+          inputmode="text"
+          maxlength="50"
+          minlength="1"
+          name="name"
+          placeholder="Sensor friendly name"
+          required="true"
+          type="text"
+          [(ngModel)]="sensor.name"
+        >
+        </ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Sensor type</ion-label>
+        <ion-select
+          placeholder="Select sensor type"
+          name="type"
+          [value]="sensor.type.toString()"
+          [(ngModel)]="sensor.type"
+          required
+        >
+          <ion-select-option value="0">Pir motion</ion-select-option>
+          <ion-select-option value="1">Magnetic switch</ion-select-option>
+          <ion-select-option value="2">IR switch</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Group</ion-label>
+        <ion-select placeholder="Select group" name="group" [(ngModel)]="sensor.group" required>
+          <ion-select-option value="0">Interior</ion-select-option>
+          <ion-select-option value="1">Perimeter</ion-select-option>
+          <ion-select-option value="2">Exterior</ion-select-option>
+          <ion-select-option value="3">Access</ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-item-group>
+    <ion-item-group>
+      <ion-item-divider>
+        <ion-label>Location</ion-label>
+      </ion-item-divider>
+      <ion-item>
+        <ion-label position="floating">MAC address</ion-label>
+        <ion-input
+          enterkeyhint="next"
+          inputmode="text"
+          maxlength="18"
+          name="mac"
+          placeholder="01:23:45:67:89:AB"
+          type="text"
+          pattern="^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$"
+          [(ngModel)]="sensor.location.mac"
+        >
+        </ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Pin</ion-label>
+        <ion-input
+          enterkeyhint="done"
+          inputmode="number"
+          min="0"
+          max="999"
+          name="pin"
+          type="number"
+          [(ngModel)]="sensor.location.pin"
+        >
+        </ion-input>
+      </ion-item>
+    </ion-item-group>
+  </ion-list>
+</ion-content>

@@ -1,10 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
+import { HTTP } from '@ionic-native/http/ngx';
+
 import { Platform } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 import { MqttService } from 'ngx-mqtt';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -43,6 +46,7 @@ export class AppComponent implements OnInit, OnDestroy {
   public labels = [];
 
   constructor(
+    private http: HTTP,
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
@@ -61,6 +65,12 @@ export class AppComponent implements OnInit, OnDestroy {
     });
     this.platform.pause.subscribe(async () => {
       console.log('app pause');
+    });
+    const mode = environment.serverTrustMode as 'nocheck' | 'default' | 'legacy' | 'pinned';
+    this.http.setServerTrustMode(mode).then(() => {
+      console.log(`Set server trust mode ${mode} successful`);
+    }).catch((reason: any) => {
+      console.log(`Set server trust mode ${mode} fails`, reason);
     });
   }
 

@@ -1,18 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { AlertController, ModalController } from '@ionic/angular';
 import { Toast } from '@ionic-native/toast/ngx';
-import { Sensor, SensorLocation, AtsService, AtsEvents } from 'src/app/services/ats.service';
-import { SensorTypesFriendlyNames, SensorGroupFriendlyNames, KEYS_ICONS } from 'src/app/app.values';
-
-interface SensorData {
-  location: SensorLocation;
-  name: string;
-  type: string;
-  group: string;
-  actived: boolean;
-  bypass: boolean;
-  online: boolean;
-}
+import { Sensor, AtsService, AtsEvents } from 'src/app/services/ats.service';
+import { SensorTypesFriendlyNames, SensorGroupFriendlyNames, KEYS_ICONS, SensorData } from 'src/app/app.values';
 
 @Component({
   selector: 'app-sensor.list',
@@ -38,6 +28,10 @@ export class SensorListComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.color = KEYS_ICONS[1];
+    if (this.ats.systemState) {
+      this.onSystemStateChanged(this.ats.systemState);
+    }
     this.configureSensors();
   }
 
@@ -45,8 +39,10 @@ export class SensorListComponent implements OnInit {
     const sensor: SensorData = {
       location: s.location,
       name: s.name,
-      type: SensorTypesFriendlyNames[s.type],
-      group: SensorGroupFriendlyNames[s.group],
+      type: s.type,
+      group: s.group,
+      typeName: SensorTypesFriendlyNames[s.type],
+      groupName: SensorGroupFriendlyNames[s.group],
       actived,
       bypass: s.bypass,
       online: s.online || false
@@ -55,7 +51,6 @@ export class SensorListComponent implements OnInit {
   }
 
   private configureSensors(): void {
-    console.log('configureSensors', this.actived);
     this.sensors = this.ats.sensors.map((s: Sensor) => {
       const actived = this.actived.findIndex(a => {
         return a.location.mac === s.location.mac &&
@@ -64,8 +59,10 @@ export class SensorListComponent implements OnInit {
       const data: SensorData = {
         location: s.location,
         name: s.name,
-        type: SensorTypesFriendlyNames[s.type],
-        group: SensorGroupFriendlyNames[s.group],
+        type: s.type,
+      group: s.group,
+      typeName: SensorTypesFriendlyNames[s.type],
+      groupName: SensorGroupFriendlyNames[s.group],
         actived,
         bypass: s.bypass,
         online: s.online || false
@@ -82,8 +79,10 @@ export class SensorListComponent implements OnInit {
         this.addSensor(s, false);
       } else {
         this.sensors[index].name = s.name;
-        this.sensors[index].type = SensorTypesFriendlyNames[s.type];
-        this.sensors[index].group = SensorGroupFriendlyNames[s.group];
+        this.sensors[index].type = s.type;
+        this.sensors[index].group = s.group;
+        this.sensors[index].typeName = SensorTypesFriendlyNames[s.type];
+        this.sensors[index].groupName = SensorGroupFriendlyNames[s.group];
         this.sensors[index].bypass = s.bypass;
         this.sensors[index].online = s.online || false;
       }
@@ -93,56 +92,65 @@ export class SensorListComponent implements OnInit {
   private handleError(reason: { error: number}): void {
     switch (reason.error) {
       case 0:
+        this.code = undefined;
         this.toast.showLongTop('Not authorized');
         break;
       case 1:
         this.toast.showLongTop('System is not ready or disarmed');
         break;
       default:
+        this.code = undefined;
         this.toast.showLongTop('There was a problem');
     }
   }
 
   private async requestCode(bypass?: boolean): Promise<void> {
-    const alert = await this.alertController.create({
-      header: 'Type your code',
-      inputs: [
-        {
-          name: 'code',
-          type: 'password',
-          attributes: {
-            maxlength: 4,
-            inputmode: 'decimal'
-          }
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          cssClass: 'secondary',
-          handler: () => {
-            console.log('Disarm system canceled');
-          }
-        }, {
-          text: 'Ok',
-          cssClass: 'primary',
-          handler: async (params) => {
-            if (params.code && params.code.length > 0) {
-              this.code = params.code;
-            } else {
-              this.toast.showLongCenter('Bad code');
+    return new Promise<void>(async (resolve, reject) => {
+      if (this.code) {
+        return resolve();
+      }
+      const alert = await this.alertController.create({
+        header: 'Type your code',
+        inputs: [
+          {
+            name: 'code',
+            type: 'password',
+            attributes: {
+              maxlength: 4,
+              inputmode: 'decimal'
             }
           }
-        }
-      ]
-    });
+        ],
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel',
+            cssClass: 'secondary',
+            handler: () => {
+              console.log('Disarm system canceled');
+            }
+          }, {
+            text: 'Ok',
+            cssClass: 'primary',
+            handler: async (params) => {
+              if (params.code && params.code.length > 0) {
+                this.code = params.code;
+                resolve();
+              } else {
+                this.toast.showLongCenter('Bad code');
+                reject({ error: 'BAD_CODE_LENGTH' });
+              }
+            }
+          }
+        ]
+      });
 
-    await alert.present();
+      await alert.present();
+    });
   }
 
   private onSystemStateChanged(data: any): void {
-    this.sensors.forEach((s: SensorData) => s.actived = false);
+    (this.sensors || []).forEach((s: SensorData) => s.actived = false);
     if (data && data.activedSensors) {
       data.activedSensors.forEach((s: Sensor) => {
         const index = this.sensors.findIndex(d => d.location.mac === s.location.mac && d.location.pin === s.location.pin);
@@ -152,7 +160,7 @@ export class SensorListComponent implements OnInit {
         }
       });
     }
-    this.color = KEYS_ICONS[data.state || 1];
+    this.color = KEYS_ICONS[data.state];
   }
 
   private onSensorActived(data: { sensor: Sensor, value: number }): void {
@@ -167,6 +175,19 @@ export class SensorListComponent implements OnInit {
 
   async back() {
     this.modalController.dismiss({ }, 'back');
+  }
+
+  async bypass(sensor: SensorData): Promise<void> {
+    try {
+      await this.requestCode();
+      if (sensor.bypass) {
+        await this.ats.clearBypassOne(sensor.location, this.code);
+      } else {
+        await this.ats.bypass(sensor.location, this.code);
+      }
+    } catch (reason) {
+      this.handleError(reason);
+    }
   }
 
 }

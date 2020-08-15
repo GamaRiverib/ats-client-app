@@ -315,7 +315,7 @@ export class MQTTChannel implements Channel {
         if (data && data.toString() === 'TRUE') {
           resolve();
         } else {
-          reject();
+          reject({ error: -1 });
         }
       };
 
@@ -353,7 +353,7 @@ export class MQTTChannel implements Channel {
         if (data && data.toString() === 'TRUE') {
           resolve();
         } else {
-          reject();
+          reject({ error: -1 });
         }
       };
 
@@ -390,7 +390,7 @@ export class MQTTChannel implements Channel {
         if (data && data.toString() === 'TRUE') {
           resolve();
         } else {
-          reject();
+          reject({ error: -1 });
         }
       };
 
@@ -440,7 +440,7 @@ export class MQTTChannel implements Channel {
         if (data && data.toString() === 'TRUE') {
           resolve();
         } else {
-          reject();
+          reject({ error: -1 });
         }
       };
 

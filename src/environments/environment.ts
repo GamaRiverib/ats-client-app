@@ -15,7 +15,8 @@ export const environment = {
     topic: '/ats',
     commands: 'commands'
   },
-  channel: 'mqtt'
+  channel: 'mqtt',
+  serverTrustMode: 'pinned'
 };
 
 /*

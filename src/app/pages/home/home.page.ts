@@ -72,6 +72,9 @@ export class HomePage implements OnInit {
     this.online = this.ats.connected;
     this.icon = `${KEYS_ICONS[1]}`;
     this.color = `${KEYS_ICONS[1]}`;
+    if (this.ats.systemState) {
+      this.onSystemStateChanged(this.ats.systemState);
+    }
   }
 
   private onSensorActived(data: any): void {

@@ -1,0 +1,9 @@
+<ion-list>
+  <ion-item *ngFor="let s of sensors; let i = index" detail (click)="sensorDetail(s)">
+    <ion-icon 
+      [name]="'radio-button-' + (s.online ? 'on' : 'off')"
+      [color]="s.online ? 'success' : 'danger'">
+    </ion-icon>
+    <ion-label class="ion-padding-start">{{ s.name }}</ion-label>
+  </ion-item>
+</ion-list>

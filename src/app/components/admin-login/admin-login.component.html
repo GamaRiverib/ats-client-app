@@ -1,0 +1,48 @@
+<ion-grid class="ion-padding-top">
+  <ion-row class="ion-padding-top ion-padding-bottom ion-align-items-center">
+    <ion-col size="12" class="ion-align-self-center">
+      <ion-text>
+        Enter programming mode
+      </ion-text>
+    </ion-col>
+  </ion-row>
+  <ion-row class="ion-padding-top ion-align-items-center">
+    <ion-col size="12" class="ion-align-self-center">
+      <ion-label position="stacked">
+        Code
+      </ion-label>
+    </ion-col>
+  </ion-row>
+  <ion-row class="ion-padding-bottom ion-align-items-center">
+    <ion-col size="12" class="ion-align-self-center">
+      <ion-item>
+        <ion-input
+          type="password"
+          autofocus="true"
+          enterkeyhing="go"
+          inputmode="numeric"
+          maxlength="6"
+          minlength="1"
+          name="code"
+          required="true"
+          [(ngModel)]="code"
+          [disabled]="!online"
+        >
+        </ion-input>
+      </ion-item>
+    </ion-col>
+  </ion-row>
+  <ion-row class="ion-padding-top ion-align-items-center">
+    <ion-col size="12" class="ion-align-self-center">
+      <ion-button
+        expand="block"
+        color="primary"
+        size="large"
+        [disabled]="!online"
+        (click)="login()">
+        OK
+      </ion-button>
+    </ion-col>
+  </ion-row>
+</ion-grid>
+

@@ -17,6 +17,12 @@
       </ion-icon>
       <ion-label class="ion-padding-start">{{ s.name }}</ion-label>
       <ion-icon
+        class="ion-padding-end"
+        (click)="bypass(s)"
+        [name]="s.bypass ? 'eye-off-outline' : 'eye-outline'"
+        [color]="s.bypass ? 'danger' : 'success'">
+      </ion-icon>
+      <ion-icon
         [name]="s.actived ? 'lock-open-outline' : 'lock-closed-outline'"
         [color]="s.actived ? 'danger' : 'success'">
       </ion-icon>
