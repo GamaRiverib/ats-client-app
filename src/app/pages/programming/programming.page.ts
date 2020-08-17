@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AtsService, SystemState, AtsEvents } from 'src/app/services/ats.service';
 import { Router } from '@angular/router';
-import { Toast } from '@ionic-native/toast/ngx';
+import { ToastService } from 'src/app/services/toast.service';
 import { AtsApiService } from 'src/app/services/ats-api.service';
 import { PATHS } from 'src/app/app.values';
 
@@ -10,14 +10,14 @@ import { PATHS } from 'src/app/app.values';
   templateUrl: './programming.page.html',
   styleUrls: ['./programming.page.scss'],
 })
-export class ProgrammingPage implements OnInit {
+export class ProgrammingPage implements OnInit, OnDestroy {
 
   private state: number;
 
   constructor(
     private ats: AtsService,
     private api: AtsApiService,
-    private toast: Toast,
+    private toast: ToastService,
     private router: Router) {
       this.ats.subscribe(AtsEvents.SYSTEM_STATE_CHANGED, this.onSystemStateChanged.bind(this));
       this.ats.subscribe(AtsEvents.SERVER_LWT_ONLINE, () => {
@@ -28,6 +28,10 @@ export class ProgrammingPage implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  ngOnDestroy() {
+    // TODO: unsubscribe
   }
 
   private onSystemStateChanged(data: any): void {

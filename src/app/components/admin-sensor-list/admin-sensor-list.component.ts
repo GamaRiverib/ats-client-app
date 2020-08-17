@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AtsApiService } from 'src/app/services/ats-api.service';
 import { AtsService, SystemState, AtsEvents, Sensor } from 'src/app/services/ats.service';
 import { Router } from '@angular/router';
@@ -11,7 +11,7 @@ import { AdminSensorDetailComponent } from '../admin-sensor-detail/admin-sensor-
   templateUrl: './admin-sensor-list.component.html',
   styleUrls: ['./admin-sensor-list.component.scss'],
 })
-export class AdminSensorListComponent implements OnInit {
+export class AdminSensorListComponent implements OnInit, OnDestroy {
 
   private sensors: SensorData[];
   private actived: Sensor[];
@@ -36,6 +36,11 @@ export class AdminSensorListComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.updateSensors(this.ats.sensors || []);
+  }
+
+  ngOnDestroy() {
+    // TODO: unsubscribe
   }
 
   private onSystemStateChanged(data: any): void {
@@ -85,7 +90,7 @@ export class AdminSensorListComponent implements OnInit {
   }
 
   private updateSensors(sensors: Sensor[]): void {
-    this.ats.sensors.forEach((s: Sensor) => {
+    sensors.forEach((s: Sensor) => {
       const index = this.sensors.findIndex(d => d.location.mac === s.location.mac &&
         d.location.pin === s.location.pin);
       if (index < 0) {

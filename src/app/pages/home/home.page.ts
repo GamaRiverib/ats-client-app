@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActionSheetController, AlertController, ModalController, Platform } from '@ionic/angular';
-import { Toast } from '@ionic-native/toast/ngx';
 import { Vibration } from '@ionic-native/vibration/ngx';
+import { ToastService } from 'src/app/services/toast.service';
 import { AtsService, AtsEvents, Sensor, SystemState, AtsStates, AtsModes } from 'src/app/services/ats.service';
 import { SensorListComponent } from 'src/app/components/sensor.list/sensor.list.component';
 import { KEYS_ICONS } from 'src/app/app.values';
@@ -11,7 +11,7 @@ import { KEYS_ICONS } from 'src/app/app.values';
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit, OnDestroy {
 
   private loading = false;
   private online = false;
@@ -37,7 +37,7 @@ export class HomePage implements OnInit {
     private alertController: AlertController,
     private modalController: ModalController,
     private platform: Platform,
-    private toast: Toast,
+    private toast: ToastService,
     private vibration: Vibration) { }
 
   ngOnInit() {
@@ -75,6 +75,10 @@ export class HomePage implements OnInit {
     if (this.ats.systemState) {
       this.onSystemStateChanged(this.ats.systemState);
     }
+  }
+
+  ngOnDestroy() {
+    // TODO: unsubscribe
   }
 
   private onSensorActived(data: any): void {

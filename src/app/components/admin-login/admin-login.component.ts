@@ -1,29 +1,21 @@
-import { Component, OnInit } from '@angular/core';
-import { Platform } from '@ionic/angular';
-import { Toast } from '@ionic-native/toast/ngx';
-import { Vibration } from '@ionic-native/vibration/ngx';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AtsService, AtsEvents } from 'src/app/services/ats.service';
 import { AtsApiService } from 'src/app/services/ats-api.service';
-import { isNumber } from 'util';
+import { ToastService } from 'src/app/services/toast.service';
 
 @Component({
   selector: 'app-admin-login',
   templateUrl: './admin-login.component.html',
   styleUrls: ['./admin-login.component.scss'],
 })
-export class AdminLoginComponent implements OnInit {
-
-  private hybrid = false;
+export class AdminLoginComponent implements OnInit, OnDestroy {
   private code: string;
   private online = false;
 
   constructor(
     private ats: AtsService,
     private api: AtsApiService,
-    private platform: Platform,
-    private toast: Toast,
-    private vibration: Vibration) {
-      this.hybrid = this.platform.is('hybrid');
+    private toast: ToastService) {
       this.ats.subscribe(AtsEvents.SERVER_LWT_ONLINE, d => this.online = true);
       this.ats.subscribe(AtsEvents.SERVER_LWT_OFFLINE, d => this.online = false);
   }
@@ -32,20 +24,18 @@ export class AdminLoginComponent implements OnInit {
     this.online = this.ats.connected;
   }
 
+  ngOnDestroy() {
+    // TOOD: unsubscribe
+  }
+
   async login(): Promise<void> {
     if (!this.code) {
       console.log('Missing code');
-      this.toast.showShortTop('Type your code');
-      if (this.hybrid) {
-        this.vibration.vibrate([500, 500]);
-      }
+      this.toast.showShortTop('Type your code', 'Missing code', [500, 500]);
     }
     if (!this.online) {
       console.log('Is not connected');
-      this.toast.showShortBottom('System is offline');
-      if (this.hybrid) {
-        this.vibration.vibrate([500, 500]);
-      }
+      this.toast.showShortBottom('System is offline', 'Is not connected', [500, 500]);
     }
 
     try {
@@ -67,11 +57,7 @@ export class AdminLoginComponent implements OnInit {
             message = 'There was a problem';
         }
       }
-      if (this.hybrid) {
-        this.toast.showLongTop(message);
-      } else {
-        alert(message);
-      }
+      this.toast.showLongTop(message);
     }
   }
 

@@ -1,6 +1,6 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { AlertController, ModalController } from '@ionic/angular';
-import { Toast } from '@ionic-native/toast/ngx';
+import { ToastService } from 'src/app/services/toast.service';
 import { Sensor, AtsService, AtsEvents } from 'src/app/services/ats.service';
 import { SensorTypesFriendlyNames, SensorGroupFriendlyNames, KEYS_ICONS, SensorData } from 'src/app/app.values';
 
@@ -9,7 +9,7 @@ import { SensorTypesFriendlyNames, SensorGroupFriendlyNames, KEYS_ICONS, SensorD
   templateUrl: './sensor.list.component.html',
   styleUrls: ['./sensor.list.component.scss'],
 })
-export class SensorListComponent implements OnInit {
+export class SensorListComponent implements OnInit, OnDestroy {
 
   private sensors: SensorData[];
   @Input() actived: Sensor[] = [];
@@ -20,8 +20,9 @@ export class SensorListComponent implements OnInit {
     private ats: AtsService,
     private alertController: AlertController,
     private modalController: ModalController,
-    private toast: Toast) {
+    private toast: ToastService) {
 
+      this.sensors = [];
       this.ats.subscribe(AtsEvents.SYSTEM_STATE_CHANGED, this.onSystemStateChanged.bind(this));
       this.ats.subscribe(AtsEvents.SENSOR_ACTIVED, this.onSensorActived.bind(this));
       this.ats.subscribe(AtsEvents.SENSORS_UPDATED, this.updateSensors.bind(this));
@@ -29,10 +30,11 @@ export class SensorListComponent implements OnInit {
 
   ngOnInit() {
     this.color = KEYS_ICONS[1];
-    if (this.ats.systemState) {
-      this.onSystemStateChanged(this.ats.systemState);
-    }
-    this.configureSensors();
+    this.updateSensors(this.ats.sensors || []);
+  }
+
+  ngOnDestroy() {
+    // TODO: unsubscribe
   }
 
   private addSensor(s: Sensor, actived: boolean): void {
@@ -72,7 +74,7 @@ export class SensorListComponent implements OnInit {
   }
 
   private updateSensors(sensors: Sensor[]): void {
-    this.ats.sensors.forEach((s: Sensor) => {
+    sensors.forEach((s: Sensor) => {
       const index = this.sensors.findIndex(d => d.location.mac === s.location.mac &&
         d.location.pin === s.location.pin);
       if (index < 0) {
@@ -150,7 +152,8 @@ export class SensorListComponent implements OnInit {
   }
 
   private onSystemStateChanged(data: any): void {
-    (this.sensors || []).forEach((s: SensorData) => s.actived = false);
+    this.sensors = this.sensors || [];
+    this.sensors.forEach((s: SensorData) => s.actived = false);
     if (data && data.activedSensors) {
       data.activedSensors.forEach((s: Sensor) => {
         const index = this.sensors.findIndex(d => d.location.mac === s.location.mac && d.location.pin === s.location.pin);
