@@ -3,21 +3,22 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false,
-  client_id: 'devmobile',
-  client_secret: '0DOH6NGJ1HB1ERPF',
-  server_url: 'http://192.168.0.173:3000',
-  broker: {
-    host: '192.168.0.173',
-    port: 8883,
-    username: '',
-    password: '',
-    topic: '/ats',
-    commands: 'commands'
-  },
-  channel: 'mqtt',
-  serverTrustMode: 'pinned'
+  production: false
 };
+
+export const CLIENT_ID = 'devmobile';
+export const CLIENT_SECRET = '0DOH6NGJ1HB1ERPF';
+export const SERVER_URL = 'https://192.168.0.173:3443';
+export const BROKER = {
+  host: '192.168.0.173',
+  port: 8883,
+  protocol: 'ws',
+  username: '',
+  password: '',
+  topic: '/ats',
+  commands: 'commands'
+};
+export const SERVER_TRUST_MODE = 'pinned';
 
 /*
  * For easier debugging in development mode, you can import the following file

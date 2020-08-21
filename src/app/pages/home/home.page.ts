@@ -2,9 +2,9 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActionSheetController, AlertController, ModalController, Platform } from '@ionic/angular';
 import { Vibration } from '@ionic-native/vibration/ngx';
 import { ToastService } from 'src/app/services/toast.service';
-import { AtsService, AtsEvents, Sensor, SystemState, AtsStates, AtsModes } from 'src/app/services/ats.service';
-import { SensorListComponent } from 'src/app/components/sensor.list/sensor.list.component';
-import { KEYS_ICONS } from 'src/app/app.values';
+import { AtsService } from 'src/app/services/ats.service';
+import { SensorListComponent } from 'src/app/components/sensor-list/sensor-list.component';
+import { KEYS_ICONS, AtsEvents, Sensor, SystemState, AtsStates, AtsModes } from 'src/app/app.values';
 
 @Component({
   selector: 'app-home',

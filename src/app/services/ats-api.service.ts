@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
-import { environment } from 'src/environments/environment';
+import { SERVER_URL, CLIENT_SECRET, CLIENT_ID } from 'src/environments/environment';
 import { getTotp } from './otp.provider.service';
-import { Sensor, SensorLocation } from './ats.service';
+import { Sensor, SensorLocation } from '../app.values';
 import { HttpService } from './http.service';
 
-const CLIENT_SECRET = environment.client_secret;
-const CLIENT_ID = environment.client_id;
-const BASE_PATH = `${environment.server_url}/config`;
+const BASE_PATH = `${SERVER_URL}/config`;
 
 @Injectable({
   providedIn: 'root'
@@ -60,7 +58,7 @@ export class AtsApiService {
 
   private getHeaders(): any {
     return {
-      Authorization: `${CLIENT_ID} ${this.getToken()}`
+      authorization: `${CLIENT_ID} ${this.getToken()}`
     };
   }
 

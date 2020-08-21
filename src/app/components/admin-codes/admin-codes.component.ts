@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Toast } from '@ionic-native/toast/ngx';
-import { AlertController, ToastController, Platform } from '@ionic/angular';
+import { AlertController } from '@ionic/angular';
 import { AtsApiService } from 'src/app/services/ats-api.service';
 import { ToastService } from 'src/app/services/toast.service';
 

@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { SensorListComponent } from './sensor.list/sensor.list.component';
+import { SensorListComponent } from './sensor-list/sensor-list.component';
 import { AdminCodesComponent } from './admin-codes/admin-codes.component';
 import { AdminEmailsComponent } from './admin-emails/admin-emails.component';
 import { AdminPhonesComponent } from './admin-phones/admin-phones.component';

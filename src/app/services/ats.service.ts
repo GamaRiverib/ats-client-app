@@ -1,142 +1,17 @@
 import { Injectable } from '@angular/core';
 import { MQTTChannel } from './mqtt.channel.service';
 import { getTotp } from './otp.provider.service';
-import { environment } from 'src/environments/environment';
+import { CLIENT_SECRET } from 'src/environments/environment';
 import { WebSocketChannel } from './ws.channel.service';
-
-const CLIENT_SECRET = environment.client_secret;
-
-export const AtsEvents = {
-    NOT_AUTHORIZED: 'NOT_AUTHORIZED',
-    PIN_CODE_UPDATED: 'PIN_CODE_UPDATED',
-    SYSTEM_STATE_CHANGED: 'SYSTEM_STATE_CHANGED',
-    SENSOR_REGISTERED: 'SENSOR_REGISTERED',
-    SENSOR_CHANGED: 'SENSOR_CHANGED',
-    SENSOR_DELETED: 'SENSOR_DELETED',
-    SENSOR_ACTIVED: 'SENSOR_ACTIVED',
-    ENTRY_TIME_CHANGED: 'ENTRY_TIME_CHANGED',
-    EXIT_TIME_CHANGED: 'EXIT_TIME_CHANGED',
-    BEEP_CHANGED: 'BEEP_CHANGED',
-    SILENT_ALARM_CHANGED: 'SILENT_ALARM_CHANGED',
-    CENTRAL_PHONE_CHANGED: 'CENTRAL_PHONE_CHANGED',
-    ADMIN_PHONE_CHANGED: 'ADMIN_PHONE_CHANGED',
-    OWNER_PHONE_ADDED: 'OWNER_PHONE_ADDED',
-    OWNER_PHONE_CHANGED: 'OWNER_PHONE_CHANGED',
-    OWNER_PHONE_DELETED: 'OWNER_PHONE_DELETED',
-    CENTRAL_EMAIL_CHANGED: 'CENTRAL_EMAIL_CHANGED',
-    ADMIN_EMAIL_CHANGED: 'ADMIN_EMAIL_CHANGED',
-    OWNER_EMAIL_ADDED: 'OWNER_EMAIL_ADDED',
-    OWNER_EMAIL_CHANGED: 'OWNER_EMAIL_CHANGED',
-    OWNER_EMAIL_DELETED: 'OWNER_EMAIL_DELETED',
-    BYPASS_CHANGE: 'BYPASS_CHANGE',
-    SYSTEM_ARMED: 'SYSTEM_ARMED',
-    SYSTEM_DISARMED: 'SYSTEM_DISARMED',
-    SYSTEM_ALARMED: 'SYSTEM_ALARMED',
-    SYSTEM_ALERT: 'SYSTEM_ALERT',
-    SIREN_ACTIVED: 'SIREN_ACTIVED',
-    SIREN_SILENCED: 'SIREN_SILENCED',
-    MAX_ALERTS: 'MAX_ALERTS',
-    MAX_UNAUTHORIZED_INTENTS: 'MAX_UNAUTHORIZED_INTENTS',
-    WEB_SOCKET_CONNECTED: 'WEB_SOCKET_CONNECTED',
-    WEB_SOCKET_DISCONNECTED: 'WEB_SOCKET_DISCONNECTED',
-    MQTT_CONNECTED: 'MQTT_CONNECTED',
-    MQTT_DISCONNECTED: 'MQTT_DISCONNECTED',
-    SERVER_LWT_ONLINE: 'SERVER_LWT_ONLINE',
-    SERVER_LWT_OFFLINE: 'SERVER_LWT_OFFLINE',
-    SENSORS_UPDATED: 'SENSORS_UPDATED'
-};
-
-export const ProtocolMesssages = {
-    Time: 'Time',
-    Events: 'Events',
-    Sensors: 'Sensors',
-    is: 'is',
-    Who: 'Who',
-    state: 'state',
-    command: 'command'
-};
+import { AtsEvents, Sensor, SystemState, Channel, SensorLocation } from '../app.values';
 
 const PayloadEvents = [
-    AtsEvents.SYSTEM_STATE_CHANGED,
-    AtsEvents.SYSTEM_ALARMED,
-    AtsEvents.SYSTEM_ARMED,
-    AtsEvents.SYSTEM_DISARMED,
-    AtsEvents.SYSTEM_ALERT
+  AtsEvents.SYSTEM_STATE_CHANGED,
+  AtsEvents.SYSTEM_ALARMED,
+  AtsEvents.SYSTEM_ARMED,
+  AtsEvents.SYSTEM_DISARMED,
+  AtsEvents.SYSTEM_ALERT
 ];
-
-export const AtsModes = ['AWAY', 'STAY', 'MAXIMUM', 'NIGHT STAY', 'INSTANT', 'CHIME'];
-
-export const AtsStates = ['READY', 'DISARMED', 'LEAVING', 'ARMED', 'ENTERING', 'ALARMED', 'PROGRAMMING'];
-
-export enum SensorTypes {
-    PIR_MOTION = 0,
-    MAGNETIC_SWITCH = 1,
-    IR_SWITCH = 2
-}
-
-export enum SensorGroup {
-    INTERIOR = 0,
-    PERIMETER = 1,
-    EXTERIOR = 2,
-    ACCESS = 3
-}
-
-export interface SensorLocation {
-    mac: string;
-    pin: number;
-}
-
-export interface Sensor {
-    location: SensorLocation;
-    type: SensorTypes;
-    name: string;
-    group: SensorGroup;
-    bypass: boolean;
-    chime?: string;
-    online?: boolean;
-}
-
-export interface SystemState {
-    before: number;
-    state: number;
-    mode: number;
-    activedSensors: Array<number>;
-    leftTime: number;
-    uptime: number;
-}
-
-export enum AtsErrors {
-    NOT_AUTHORIZED = 0,
-    INVALID_SYSTEM_STATE = 1,
-    BAD_REQUEST = 2,
-    WAS_A_PROBLEM = 3,
-    EMPTY_RESPONSE = 4,
-    NOT_CONNECTED = 5,
-    TIMEOUT = 6
-}
-
-export interface Channel {
-    connect(): void;
-    connected(): boolean;
-    onConnected(handler: () => void): void;
-    onDisconnected(handler: () => void): void;
-    getServerTime(): Promise<number>;
-    sendIsMessage(token: string): void;
-    getState(token: string): Promise<SystemState>;
-    arm(token: string, mode: number, code?: string): Promise<void>;
-    disarm(token: string, code: string): Promise<void>;
-    bypass(token: string, location: SensorLocation, code: string): Promise<void>;
-    bypassAll(token: string, locations: SensorLocation[], code: string): Promise<void>;
-    clearBypass(token: string, code: string): Promise<void>;
-    clearBypassOne(token: string, location: SensorLocation, code: string): Promise<void>;
-    programm(token: string, code: string): Promise<void>;
-    onReceiveTime(handler: (time: number) => void): void;
-    onReceiveWho(handler: () => void): void;
-    onReceiveEvents(handler: (config: any) => void): void;
-    onReceiveSensors(handler: (sensors: any) => void): void;
-    subscribe(topic: string, callback: (data: any) => void, config?: any): void;
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -161,11 +36,7 @@ export class AtsService {
 
     this.startMQTTChannel();
 
-    if (environment.channel === 'ws') {
-      this.webSocketChannel.connect();
-    } else {
-      this.mqttChannel.connect();
-    }
+    this.mqttChannel.connect();
 
     this.startServerTimeSync();
 
@@ -237,7 +108,7 @@ export class AtsService {
     if (!this.timeSynchronizationIntervalId || !this.lastTimeSynchronization) {
       this.startServerTimeSync();
     }
-    this.publish(AtsEvents.WEB_SOCKET_CONNECTED);
+    this.notify(AtsEvents.WEB_SOCKET_CONNECTED);
   }
 
   private onWebSocketChannelDisconnected(): void {
@@ -246,14 +117,14 @@ export class AtsService {
       this.timeSynchronizationIntervalId = null;
       this.lastTimeSynchronization = null;
     }
-    this.publish(AtsEvents.WEB_SOCKET_DISCONNECTED);
+    this.notify(AtsEvents.WEB_SOCKET_DISCONNECTED);
   }
 
   private onMQTTChannelConnected(): void {
     if (!this.timeSynchronizationIntervalId || !this.lastTimeSynchronization) {
       this.startServerTimeSync();
     }
-    this.publish(AtsEvents.MQTT_CONNECTED);
+    this.notify(AtsEvents.MQTT_CONNECTED);
   }
 
   private onMQTTChannelDisconnected(): void {
@@ -262,7 +133,7 @@ export class AtsService {
       this.timeSynchronizationIntervalId = null;
       this.lastTimeSynchronization = null;
     }
-    this.publish(AtsEvents.MQTT_DISCONNECTED);
+    this.notify(AtsEvents.MQTT_DISCONNECTED);
   }
 
   private syncServerTime(): void {
@@ -320,7 +191,7 @@ export class AtsService {
       systemState.activedSensors.push(Number.parseInt(d.charAt(i++) + '' + d.charAt(i), 32));
     }
     const payload = { system: systemState, leftTimeout };
-    this.publish(AtsEvents[event], payload);
+    this.notify(AtsEvents[event], payload);
   }
 
   private onReceiveEventsFromWebSockets(channel: Channel, config: any): void {
@@ -330,7 +201,7 @@ export class AtsService {
       if (this.payloadEventsIncludes(event)) {
         cb = (data: any): void => this.handleEventWithPayloadCode.call(this, data, event);
       } else {
-        cb = (data: any): void => this.publish(AtsEvents[event], data);
+        cb = (data: any): void => this.notify(AtsEvents[event], data);
       }
       channel.subscribe(event, cb, config);
     }
@@ -339,7 +210,7 @@ export class AtsService {
   private onReceiveEventsFromMqtt(channel: Channel, config: any): void {
     // tslint:disable-next-line: forin
     for (const event in config) {
-      channel.subscribe(event, d => this.publish(AtsEvents[event], d), config);
+      channel.subscribe(event, d => this.notify(AtsEvents[event], d), config);
     }
   }
 
@@ -349,19 +220,19 @@ export class AtsService {
       } else {
           this.sensorList = [];
       }
-      this.publish(AtsEvents.SENSORS_UPDATED, this.sensorList);
+      this.notify(AtsEvents.SENSORS_UPDATED, this.sensorList);
   }
 
   private onLWT(online: boolean): void {
     console.log('onLWT', online);
     if (online) {
-      this.publish(AtsEvents.SERVER_LWT_ONLINE);
+      this.notify(AtsEvents.SERVER_LWT_ONLINE);
     } else {
-      this.publish(AtsEvents.SERVER_LWT_OFFLINE);
+      this.notify(AtsEvents.SERVER_LWT_OFFLINE);
     }
   }
 
-  private publish(event: string, data?: any): void {
+  private notify(event: string, data?: any): void {
     if (AtsEvents[event] && this.listeners[event]) {
       this.listeners[event].forEach((h: (data: any) => any) => h(data));
     }
@@ -407,7 +278,7 @@ export class AtsService {
     return this.getChannel().programm(token, code);
   }
 
-  subscribe(event: string, callback: (data: any) => void): void {
+  subscribe(event: string, callback: (data: any) => void): { unsubscribe: () => void } {
     if (AtsEvents[event]) {
       if (!this.listeners[event]) {
         this.listeners[event] = [];
@@ -416,6 +287,19 @@ export class AtsService {
         this.listeners[event].push(callback);
       }
     }
+    return {
+      unsubscribe: () => {
+        const index = this.listeners[event].findIndex((listener: any) => {
+          return listener === callback;
+        });
+
+        if (index >= 0) {
+          this.listeners[event].splice(index, 1);
+        } else {
+          console.log('Listener not found', event, callback);
+        }
+      }
+    };
   }
 
   getSensor(index: number): Sensor | null {

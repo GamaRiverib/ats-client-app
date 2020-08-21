@@ -7,7 +7,7 @@ import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 import { MqttService } from 'ngx-mqtt';
-import { environment } from 'src/environments/environment';
+import { SERVER_TRUST_MODE, environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -66,12 +66,16 @@ export class AppComponent implements OnInit, OnDestroy {
     this.platform.pause.subscribe(async () => {
       console.log('app pause');
     });
-    const mode = environment.serverTrustMode as 'nocheck' | 'default' | 'legacy' | 'pinned';
+    const mode = SERVER_TRUST_MODE as 'nocheck' | 'default' | 'legacy' | 'pinned';
     this.http.setServerTrustMode(mode).then(() => {
       console.log(`Set server trust mode ${mode} successful`);
     }).catch((reason: any) => {
       console.log(`Set server trust mode ${mode} fails`, reason);
     });
+
+    if (environment.production === false) {
+      console.log('Running with development parameters');
+    }
   }
 
   async ngOnDestroy(): Promise<void> {

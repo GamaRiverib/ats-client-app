@@ -1,7 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { SensorListComponent } from './sensor.list.component';
+import { SensorListComponent } from './sensor-list.component';
 
 describe('SensorListComponent', () => {
   let component: SensorListComponent;

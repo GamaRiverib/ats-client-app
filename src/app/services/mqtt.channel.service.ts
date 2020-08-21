@@ -1,17 +1,16 @@
 import { Injectable } from '@angular/core';
 import { MqttService, IMqttServiceOptions, IMqttMessage,
          IOnConnectEvent, IOnErrorEvent, IPublishOptions } from 'ngx-mqtt';
-import { Channel, AtsErrors, SystemState, SensorLocation } from './ats.service';
-import { environment } from 'src/environments/environment';
+import { Channel, AtsErrors, SystemState, SensorLocation } from '../app.values';
+import { BROKER, CLIENT_ID } from 'src/environments/environment';
 
-const CLIENT_ID = environment.client_id;
-
-const brokerUrl = environment.broker.host;
-const brokerPort = environment.broker.port;
-const mqttUser = environment.broker.username;
-const mqttPass = environment.broker.password;
-const mqttTopic = environment.broker.topic;
-const cmndTopic = environment.broker.commands;
+const brokerUrl = BROKER.host;
+const brokerPort = BROKER.port;
+const brokerProtocol = BROKER.protocol as 'ws' | 'wss';
+const mqttUser = BROKER.username;
+const mqttPass = BROKER.password;
+const mqttTopic = BROKER.topic;
+const cmndTopic = BROKER.commands;
 
 const timeout = 30000;
 
@@ -185,8 +184,9 @@ export class MQTTChannel implements Channel {
     console.log('Connecting to MQTT broker...');
 
     const opts: IMqttServiceOptions = {
-      host: brokerUrl,
+      hostname: brokerUrl,
       port: brokerPort,
+      protocol: brokerProtocol,
       username: mqttUser,
       password: mqttPass,
       reconnectPeriod: 3000,

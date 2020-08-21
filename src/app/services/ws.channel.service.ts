@@ -1,12 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HTTP, HTTPResponse } from '@ionic-native/http/ngx';
 import { Socket } from 'ngx-socket-io';
-import { Channel, ProtocolMesssages, AtsErrors, SystemState, SensorLocation } from './ats.service';
-import { environment } from 'src/environments/environment';
+import { Channel, ProtocolMesssages, AtsErrors, SystemState, SensorLocation } from '../app.values';
+import { SERVER_URL, CLIENT_ID } from 'src/environments/environment';
 
-// TODO:
-const CLIENT_ID = environment.client_id;
-const serverUrl = environment.server_url;
 
 @Injectable({
   providedIn: 'root'
@@ -102,7 +99,7 @@ export class WebSocketChannel implements Channel {
       console.log('WebSocket channel is already connected');
       return;
     }
-    console.log(`AtsService connecting to server ${serverUrl}`);
+    console.log(`AtsService connecting to server ${SERVER_URL}`);
     this.socket.connect();
   }
 
@@ -119,7 +116,7 @@ export class WebSocketChannel implements Channel {
   }
 
   async getServerTime(): Promise<number> {
-    const url = `${serverUrl}/uptime`;
+    const url = `${SERVER_URL}/uptime`;
     this.http.clearCookies();
     const response: HTTPResponse = await this.http.get(url, {}, {});
     if (response.status !== 200) {
@@ -138,7 +135,7 @@ export class WebSocketChannel implements Channel {
 
   async getState(token: string): Promise<SystemState> {
     const clientId = CLIENT_ID;
-    const url = `${serverUrl}/state`;
+    const url = `${SERVER_URL}/state`;
     const headers = { Authorization: `${clientId} ${token}` };
     this.http.clearCookies();
     const response: HTTPResponse = await this.http.get(url, {}, headers);
@@ -162,7 +159,7 @@ export class WebSocketChannel implements Channel {
 
   async arm(token: string, mode: number, code?: string): Promise<void> {
       const clientId = CLIENT_ID;
-      const url = `${serverUrl}/arm`;
+      const url = `${SERVER_URL}/arm`;
       let body = `mode=${mode}`;
       if (code) {
         body += `&code=${code}`;
@@ -191,7 +188,7 @@ export class WebSocketChannel implements Channel {
 
   async disarm(token: string, code: string): Promise<void> {
     const clientId = CLIENT_ID;
-    const url = `${serverUrl}/disarm`;
+    const url = `${SERVER_URL}/disarm`;
     const body = `code=${code}`;
     const headers = {
       Authorization: `${clientId} ${token}`,
@@ -217,7 +214,7 @@ export class WebSocketChannel implements Channel {
 
   async bypass(token: string, location: SensorLocation, code: string): Promise<void> {
     const clientId = CLIENT_ID;
-    const url = `${serverUrl}/bypass/one`;
+    const url = `${SERVER_URL}/bypass/one`;
     let body = `location=${JSON.stringify(location)}`;
     if (code) {
       body += `&code=${code}`;
@@ -246,7 +243,7 @@ export class WebSocketChannel implements Channel {
 
   async bypassAll(token: string, locations: SensorLocation[], code: string): Promise<void> {
     const clientId = CLIENT_ID;
-    const url = `${serverUrl}/bypass/all`;
+    const url = `${SERVER_URL}/bypass/all`;
     let body = `locations=${JSON.stringify(locations)}`;
     if (code) {
       body += `&code=${code}`;
@@ -275,7 +272,7 @@ export class WebSocketChannel implements Channel {
 
   async clearBypass(token: string, code: string): Promise<void> {
     const clientId = CLIENT_ID;
-    const url = `${serverUrl}/unbypass/all`;
+    const url = `${SERVER_URL}/unbypass/all`;
     const body = `code=${code}`;
     const headers = {
       Authorization: `${clientId} ${token}`,
@@ -301,7 +298,7 @@ export class WebSocketChannel implements Channel {
 
   async clearBypassOne(token: string, location: SensorLocation, code: string): Promise<void> {
     const clientId = CLIENT_ID;
-    const url = `${serverUrl}/unbypass/one`;
+    const url = `${SERVER_URL}/unbypass/one`;
     let body = `location=${JSON.stringify(location)}`;
     if (code) {
       body += `&code=${code}`;
@@ -330,7 +327,7 @@ export class WebSocketChannel implements Channel {
 
   async programm(token: string, code: string): Promise<void>{
     const clientId = CLIENT_ID;
-    const url = `${serverUrl}/config/programm`;
+    const url = `${SERVER_URL}/config/programm`;
     const body = `code=${code}`;
     const headers = {
       Authorization: `${clientId} ${token}`,

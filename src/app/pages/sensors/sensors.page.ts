@@ -1,8 +1,9 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { AlertController, ModalController } from '@ionic/angular';
 import { ToastService } from 'src/app/services/toast.service';
-import { Sensor, AtsService, AtsEvents } from 'src/app/services/ats.service';
-import { SensorTypesFriendlyNames, SensorGroupFriendlyNames, KEYS_ICONS, SensorData } from 'src/app/app.values';
+import { AtsService } from 'src/app/services/ats.service';
+import { SensorTypesFriendlyNames, SensorGroupFriendlyNames,
+         KEYS_ICONS, SensorData, Sensor, AtsEvents } from 'src/app/app.values';
 
 @Component({
   selector: 'app-sensors',
@@ -15,6 +16,7 @@ export class SensorsPage implements OnInit, OnDestroy {
   @Input() actived: Sensor[] = [];
   private code: string;
   private color: string;
+  private listeners: { unsubscribe: () => void }[];
 
   constructor(
     private ats: AtsService,
@@ -22,18 +24,22 @@ export class SensorsPage implements OnInit, OnDestroy {
     private toast: ToastService) {
 
       this.sensors = [];
-      this.ats.subscribe(AtsEvents.SYSTEM_STATE_CHANGED, this.onSystemStateChanged.bind(this));
-      this.ats.subscribe(AtsEvents.SENSOR_ACTIVED, this.onSensorActived.bind(this));
-      this.ats.subscribe(AtsEvents.SENSORS_UPDATED, this.updateSensors.bind(this));
+      this.listeners = [];
+      this.listeners.push(this.ats.subscribe(AtsEvents.SYSTEM_STATE_CHANGED, this.onSystemStateChanged.bind(this)));
+      this.listeners.push(this.ats.subscribe(AtsEvents.SENSOR_ACTIVED, this.onSensorActived.bind(this)));
+      this.listeners.push(this.ats.subscribe(AtsEvents.SENSORS_UPDATED, this.updateSensors.bind(this)));
   }
 
   ngOnInit() {
     this.color = KEYS_ICONS[1];
     this.updateSensors(this.ats.sensors || []);
+    this.actived.forEach((sensor: Sensor) => {
+      this.onSensorActived({ sensor, value: 1 });
+    });
   }
 
   ngOnDestroy() {
-    // TODO: unsubscribe
+    this.listeners.forEach(listener => listener.unsubscribe());
   }
 
   private addSensor(s: Sensor, actived: boolean): void {

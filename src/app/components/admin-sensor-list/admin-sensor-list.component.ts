@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AtsApiService } from 'src/app/services/ats-api.service';
-import { AtsService, SystemState, AtsEvents, Sensor } from 'src/app/services/ats.service';
+import { AtsService } from 'src/app/services/ats.service';
 import { Router } from '@angular/router';
 import { PATHS, SensorData, SensorTypesFriendlyNames, SensorGroupFriendlyNames } from 'src/app/app.values';
 import { ModalController } from '@ionic/angular';
 import { AdminSensorDetailComponent } from '../admin-sensor-detail/admin-sensor-detail.component';
+import { SystemState, AtsEvents, Sensor } from '../../app.values';
 
 @Component({
   selector: 'app-admin-sensor-list',
@@ -15,6 +16,7 @@ export class AdminSensorListComponent implements OnInit, OnDestroy {
 
   private sensors: SensorData[];
   private actived: Sensor[];
+  private listeners: { unsubscribe: () => void }[];
 
   constructor(
     private ats: AtsService,
@@ -24,15 +26,11 @@ export class AdminSensorListComponent implements OnInit, OnDestroy {
 
       this.actived = [];
       this.sensors = [];
-      this.ats.subscribe(AtsEvents.SYSTEM_STATE_CHANGED, this.onSystemStateChanged.bind(this));
-      this.ats.subscribe(AtsEvents.SENSOR_ACTIVED, this.onSensorActived.bind(this));
-      this.ats.subscribe(AtsEvents.SENSORS_UPDATED, this.updateSensors.bind(this));
-      this.ats.subscribe(AtsEvents.SERVER_LWT_ONLINE, () => {
-        if (this.ats.connected) {
-          this.ats.getState().then(this.onSystemStateChanged.bind(this));
-          this.configureSensors();
-        }
-      });
+      this.listeners = [];
+      this.listeners.push(this.ats.subscribe(AtsEvents.SYSTEM_STATE_CHANGED, this.onSystemStateChanged.bind(this)));
+      this.listeners.push(this.ats.subscribe(AtsEvents.SENSOR_ACTIVED, this.onSensorActived.bind(this)));
+      this.listeners.push(this.ats.subscribe(AtsEvents.SENSORS_UPDATED, this.updateSensors.bind(this)));
+      this.listeners.push(this.ats.subscribe(AtsEvents.SERVER_LWT_ONLINE, this.configureSensors.bind(this)));
   }
 
   ngOnInit() {
@@ -40,7 +38,7 @@ export class AdminSensorListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // TODO: unsubscribe
+    this.listeners.forEach(listener => listener.unsubscribe());
   }
 
   private onSystemStateChanged(data: any): void {
@@ -108,6 +106,9 @@ export class AdminSensorListComponent implements OnInit, OnDestroy {
   }
 
   private configureSensors(): void {
+    if (this.ats.connected) {
+      this.ats.getState().then(this.onSystemStateChanged.bind(this));
+    }
     this.sensors = this.ats.sensors.map((s: Sensor) => {
       const actived = this.actived.findIndex(a => {
         return a.location.mac === s.location.mac &&

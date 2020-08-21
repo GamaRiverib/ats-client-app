@@ -8,7 +8,7 @@ import { HomePageRoutingModule } from './home-routing.module';
 
 import { HomePage } from './home.page';
 import { ComponentsModule } from 'src/app/components/components.module';
-import { SensorListComponent } from 'src/app/components/sensor.list/sensor.list.component';
+import { SensorListComponent } from 'src/app/components/sensor-list/sensor-list.component';
 
 @NgModule({
   entryComponents: [

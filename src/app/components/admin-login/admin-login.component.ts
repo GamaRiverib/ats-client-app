@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AtsService, AtsEvents } from 'src/app/services/ats.service';
+import { AtsService } from 'src/app/services/ats.service';
 import { AtsApiService } from 'src/app/services/ats-api.service';
 import { ToastService } from 'src/app/services/toast.service';
+import { AtsEvents } from 'src/app/app.values';
 
 @Component({
   selector: 'app-admin-login',
@@ -11,13 +12,15 @@ import { ToastService } from 'src/app/services/toast.service';
 export class AdminLoginComponent implements OnInit, OnDestroy {
   private code: string;
   private online = false;
+  private listeners: { unsubscribe: () => void }[];
 
   constructor(
     private ats: AtsService,
     private api: AtsApiService,
     private toast: ToastService) {
-      this.ats.subscribe(AtsEvents.SERVER_LWT_ONLINE, d => this.online = true);
-      this.ats.subscribe(AtsEvents.SERVER_LWT_OFFLINE, d => this.online = false);
+      this.listeners = [];
+      this.listeners.push(this.ats.subscribe(AtsEvents.SERVER_LWT_ONLINE, this.onServerOnline.bind(this)));
+      this.listeners.push(this.ats.subscribe(AtsEvents.SERVER_LWT_OFFLINE, this.onServerOffline.bind(this)));
   }
 
   ngOnInit() {
@@ -25,7 +28,15 @@ export class AdminLoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // TOOD: unsubscribe
+    this.listeners.forEach(listener => listener.unsubscribe());
+  }
+
+  private onServerOnline(): void {
+    this.online = true;
+  }
+
+  private onServerOffline(): void {
+    this.online = false;
   }
 
   async login(): Promise<void> {

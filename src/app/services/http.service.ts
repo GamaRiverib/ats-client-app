@@ -13,7 +13,11 @@ export class HttpService {
   constructor(
     private http: HTTP,
     private httpClient: HttpClient,
-    private platform: Platform) { }
+    private platform: Platform) {
+      if (this.platform.is('hybrid')) {
+        console.log('Running on hybrid platform');
+      }
+    }
 
 
   private throwError(reason: { status: number }): void {
@@ -85,13 +89,18 @@ export class HttpService {
   }
 
   private async putNative(url: string, body?: any, headers?: HttpHeaders, options?: any): Promise<any> {
-    this.http.clearCookies();
-    const response: HTTPResponse = await this.http.put(url, body, headers);
-    if (response.status >= 300) {
-      console.log('put request error', { status: response.status, error: response.error });
-      throw { error: -1 };
+    try {
+      this.http.clearCookies();
+      const response: HTTPResponse = await this.http.put(url, body, headers);
+      if (response.status >= 300) {
+        console.log('put request error', { status: response.status, error: response.error });
+        throw { error: -1 };
+      }
+      return response.data;
+    } catch (reason) {
+      console.log(reason);
+      return null;
     }
-    return response.data;
   }
 
   private async deleteNative(url: string, headers?: HttpHeaders, options?: any): Promise<any> {

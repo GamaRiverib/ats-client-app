@@ -16,7 +16,7 @@ import { MqttModule } from 'ngx-mqtt';
 import { SocketIoModule } from 'ngx-socket-io';
 import { Toast } from '@ionic-native/toast/ngx';
 import { Vibration } from '@ionic-native/vibration/ngx';
-import { environment } from 'src/environments/environment';
+import { SERVER_URL } from 'src/environments/environment';
 
 @NgModule({
   declarations: [AppComponent],
@@ -25,7 +25,7 @@ import { environment } from 'src/environments/environment';
     BrowserModule,
     HttpClientModule,
     MqttModule.forRoot({ connectOnCreate: false }),
-    SocketIoModule.forRoot({ url: environment.server_url, options: { autoConnect : false } }),
+    SocketIoModule.forRoot({ url: SERVER_URL, options: { autoConnect : false } }),
     IonicModule.forRoot(),
     AppRoutingModule
   ],
